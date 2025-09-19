@@ -5,7 +5,16 @@ import * as dotenv from "dotenv";
 
 const app = express();
 
-app.use(cors());
+
+const corsOption = {
+  origin: "https://hongsama.netlify.app",
+  credentials: true,
+};
+
+// app.use(cors());
+  app.use(cors(corsOption));
+
+
 
 //프론트엔드에서 받은 json형태의 데이터를 자바스크립트 객체로 파싱(변환)하여 사용
 
@@ -20,7 +29,6 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-console.log(process.env.OPENAI_API_KEY);
 
 // 챗봇 api설정
 const initialMessage = (ingredientList) => {
@@ -42,7 +50,6 @@ const initialMessage = (ingredientList) => {
 app.post("/recipe", async (req, res) => {
   const { ingredientList } = req.body; // 프론트엔드에서 요청한 재료목록 데이터
   const messages = initialMessage(ingredientList);
-  console.log("message", messages);
   try {
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
@@ -52,7 +59,7 @@ app.post("/recipe", async (req, res) => {
       top_p: 1,
     });
     const data = [...messages, response.choices[0].message];
-    console.log("data", data);
+  
     res.json({ data });
   } catch (error) {
     console.log(error);
